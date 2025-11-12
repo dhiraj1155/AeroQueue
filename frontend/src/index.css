@@ -1,0 +1,81 @@
+body {
+  font-family: Arial, sans-serif;
+  margin: 0;
+  padding: 0;
+  background: linear-gradient(to bottom right, #4f46e5, #7c3aed); /* Rich indigo to purple gradient */
+  color: #ffffff; /* Bright white for text */
+}
+
+header, footer {
+  background: #10b981; /* Vibrant emerald green */
+  padding: 1rem 2rem;
+}
+
+header h1, footer {
+  color: #ffffff; /* Bright white for header and footer text */
+}
+
+nav a, nav button {
+  margin-left: 1rem;
+  color: #ffffff; /* White text for nav links and buttons */
+  text-decoration: none;
+  padding: 0.5rem 1rem;
+  border-radius: 5px;
+  cursor: pointer;
+  border: none;
+  background: #3b82f6; /* Bright blue for nav elements */
+}
+
+nav a:hover, nav button:hover {
+  background: #2563eb; /* Slightly darker blue on hover for contrast */
+}
+
+.container {
+  max-width: 1000px;
+  margin: 2rem auto;
+  padding: 1rem;
+  background: #ffffff; /* Clean white for the container */
+  border-radius: 8px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15); /* Subtle shadow for depth */
+}
+
+form input {
+  width: 100%;
+  padding: 0.5rem;
+  margin-bottom: 1rem;
+  border-radius: 5px;
+  border: 1px solid #93c5fd; /* Light blue border */
+  background: #f0f5ff; /* Very light blue for input background */
+  color: #1e3a8a; /* Dark blue for input text */
+}
+
+form button {
+  padding: 0.5rem 1rem;
+  border-radius: 5px;
+  border: none;
+  cursor: pointer;
+}
+
+button.primary {
+  background: #3b82f6; /* Vibrant blue for primary buttons */
+  color: #ffffff; /* White text */
+}
+
+button.danger {
+  background: #ef4444; /* Bright red for danger buttons */
+  color: #ffffff; /* White text */
+}
+
+button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.message {
+  background: #34d399; /* Bright teal for messages */
+  padding: 0.5rem;
+  margin-bottom: 0.5rem;
+  border-radius: 5px;
+  word-wrap: break-word;
+  color: #ffffff; /* White text for contrast */
+}

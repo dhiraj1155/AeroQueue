@@ -1,0 +1,25 @@
+datasource db {
+provider = "mongodb"
+url      = env("DATABASE_URL")
+}
+
+generator client {
+provider = "prisma-client-js"
+}
+
+// Defines the model for the messages we store from Solace.
+model Message {
+  id         String   @id @default(auto()) @map("_id") @db.ObjectId
+  content    Json
+  receivedAt DateTime @default(now())
+}
+
+
+model User {
+  id       String   @id @default(auto()) @map("_id") @db.ObjectId
+  name     String
+  email    String   @unique
+  password String
+}
+
+

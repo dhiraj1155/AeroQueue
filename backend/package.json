@@ -1,0 +1,27 @@
+{
+  "name": "solace-mongo-backend",
+  "version": "1.0.0",
+  "description": "Backend service to subscribe to Solace and store messages in MongoDB.",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js",
+    "dev": "nodemon index.js",
+    "prisma:generate": "prisma generate"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@prisma/client": "^5.22.0",
+    "bcrypt": "^6.0.0",
+    "cors": "^2.8.5",
+    "dotenv": "^16.6.1",
+    "express": "^4.21.2",
+    "jsonwebtoken": "^9.0.2",
+    "rhea": "^3.0.4"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.2",
+    "prisma": "^5.22.0"
+  }
+}
