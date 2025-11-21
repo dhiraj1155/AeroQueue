@@ -4,9 +4,10 @@ const MessageViewer = () => {
   const [messages, setMessages] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
-  const [currentPage, setCurrentPage] = useState(1); // 🟢 Pagination: current page
-  const messagesPerPage = 4; // 🟢 Show 4 messages per page
+  const [currentPage, setCurrentPage] = useState(1);
+  const [searchQuery, setSearchQuery] = useState("");
 
+  const messagesPerPage = 4;
   const token = localStorage.getItem("token");
 
   const fetchMessages = async () => {
@@ -16,10 +17,14 @@ const MessageViewer = () => {
       const res = await fetch("http://localhost:3000/messages", {
         headers: { Authorization: `Bearer ${token}` },
       });
+
       const data = await res.json();
       if (!res.ok) throw new Error(data.message || "Failed to fetch");
-      setMessages(data);
-      setCurrentPage(1); // 🟢 Reset to first page after refresh
+
+      // Ensure array format
+      const list = Array.isArray(data) ? data : data.messages || [];
+      setMessages(list);
+      setCurrentPage(1);
     } catch (err) {
       setError(err.message);
     } finally {
@@ -27,27 +32,27 @@ const MessageViewer = () => {
     }
   };
 
-  // Helper function to parse and format message content
-  const formatMessage = (content) => {
-    if (content && typeof content === "object") {
-      return JSON.stringify(content, null, 2);
+  // Convert message to readable string
+  const formatMessage = (msg) => {
+    try {
+      return JSON.stringify(msg, null, 2);
+    } catch {
+      return String(msg);
     }
-    if (typeof content === "string") {
-      try {
-        const parsed = JSON.parse(content);
-        return JSON.stringify(parsed, null, 2);
-      } catch {
-        return content;
-      }
-    }
-    return String(content ?? "");
   };
 
-  // 🟢 Pagination Calculations
+  // ✅ WORKING SEARCH
+  const filteredMessages = messages.filter((msg) => {
+    if (!searchQuery.trim()) return true;
+    const text = JSON.stringify(msg).toLowerCase();
+    return text.includes(searchQuery.toLowerCase());
+  });
+
+  // ✅ Pagination logic
   const indexOfLast = currentPage * messagesPerPage;
   const indexOfFirst = indexOfLast - messagesPerPage;
-  const currentMessages = messages.slice(indexOfFirst, indexOfLast);
-  const totalPages = Math.ceil(messages.length / messagesPerPage);
+  const currentMessages = filteredMessages.slice(indexOfFirst, indexOfLast);
+  const totalPages = Math.ceil(filteredMessages.length / messagesPerPage) || 1;
 
   const handleNext = () => {
     if (currentPage < totalPages) setCurrentPage((p) => p + 1);
@@ -67,7 +72,7 @@ const MessageViewer = () => {
         <button
           onClick={fetchMessages}
           disabled={loading}
-          className="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+          className="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 disabled:opacity-50"
         >
           {loading ? "Loading..." : "Refresh"}
         </button>
@@ -79,33 +84,51 @@ const MessageViewer = () => {
         </p>
       )}
 
-      {/* 🟢 Messages Grid */}
+      {/* ✅ Search Bar */}
+      <div className="flex justify-center">
+        <div className="relative w-full max-w-md">
+          <input
+            type="text"
+            placeholder="Search messages..."
+            value={searchQuery}
+            onChange={(e) => {
+              setSearchQuery(e.target.value);
+              setCurrentPage(1);
+            }}
+            className="w-full px-10 py-2 text-black border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
+          />
+          <span className="absolute left-3 top-2.5 text-gray-400">🔍</span>
+        </div>
+      </div>
+
+      {/* ✅ Messages Grid */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
         {currentMessages.length === 0 && !loading && (
           <p className="col-span-full text-center text-gray-500">
-            No messages found
+            No matching messages found
           </p>
         )}
 
-        {currentMessages.map((msg) => (
+        {currentMessages.map((msg, index) => (
           <div
-            key={msg.id}
-            className="bg-white shadow-md rounded-lg p-4 border border-gray-200 flex flex-col justify-between"
+            key={msg.id || index}
+            className="bg-white shadow-md rounded-lg p-4 border"
           >
-            <div className="overflow-x-auto">
-              <pre className="text-gray-800 text-sm bg-gray-50 p-3 rounded border border-gray-200">
-                {formatMessage(msg.content)}
-              </pre>
-            </div>
-            <div className="flex justify-between items-center mt-3 pt-3 border-t border-gray-200">
-              <span className="text-gray-500 text-xs">
-                {new Date(msg.receivedAt).toLocaleString()}
-              </span>
+            <pre className="text-gray-800 text-sm bg-gray-50 p-3 rounded overflow-x-auto">
+              {formatMessage(msg)}
+            </pre>
+
+            <div className="flex justify-between items-center mt-3 border-t pt-2">
+              {msg.receivedAt && (
+                <span className="text-xs text-gray-500">
+                  {new Date(msg.receivedAt).toLocaleString()}
+                </span>
+              )}
               <button
                 onClick={() =>
-                  navigator.clipboard.writeText(formatMessage(msg.content))
+                  navigator.clipboard.writeText(formatMessage(msg))
                 }
-                className="text-xs text-indigo-600 hover:text-indigo-800 transition-colors"
+                className="text-xs text-indigo-600 hover:text-indigo-800"
               >
                 Copy
               </button>
@@ -114,13 +137,13 @@ const MessageViewer = () => {
         ))}
       </div>
 
-      {/* 🟢 Pagination Controls */}
-      {messages.length > 0 && (
+      {/* ✅ Pagination Controls */}
+      {filteredMessages.length > 0 && (
         <div className="flex justify-center items-center space-x-4 mt-6">
           <button
             onClick={handlePrev}
             disabled={currentPage === 1}
-            className="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg disabled:opacity-50"
+            className="px-4 py-2 bg-gray-200 text-gray-700 rounded disabled:opacity-50"
           >
             Previous
           </button>
@@ -132,7 +155,7 @@ const MessageViewer = () => {
           <button
             onClick={handleNext}
             disabled={currentPage === totalPages}
-            className="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg disabled:opacity-50"
+            className="px-4 py-2 bg-gray-200 text-gray-700 rounded disabled:opacity-50"
           >
             Next
           </button>
